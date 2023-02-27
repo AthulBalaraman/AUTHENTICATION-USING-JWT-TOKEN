@@ -23,4 +23,22 @@ const createTokens = (user) => {
 };
 
 
-module.exports = {createTokens}
+const validateToken = (req,res,next)=>{
+  const accessToken = req.cookies["access-token"]
+  if(!accessToken){
+    return res.status(400).json({message:"User not authenticated ! "})
+  }
+    try {
+      const validToken = verify(accessToken,"jwtsecret959679")
+      if(validToken){
+        req.authenticated = true // in Express you can create variabled like this
+        return next()
+      }
+    } catch (error) {
+      return res.status(400).json({message:error})
+    }
+  
+}
+
+
+module.exports = {createTokens, validateToken}

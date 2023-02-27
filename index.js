@@ -5,7 +5,7 @@ const db = require('./config/db')
 const bcrypt = require('bcrypt')
 const User = require('./models/User')
 const cookieParser = require('cookie-parser')
-const {createTokens} = require('./Jwt')
+const {createTokens,validateToken} = require('./Jwt')
 
 
 
@@ -54,17 +54,20 @@ app.post('/login',async(req,res)=>{
     }else{
       const accessToken = createTokens(user) // sending to create token
 
-      // S toring cookie
+      // Storing cookie
 
       res.cookie("access-token",accessToken,{
-        maxAge:60*60*24*30*1000 // cookie expires after 30 days
+        maxAge:60*60*24*30*1000 ,// cookie expires after 30 days
+        httpOnly:true // This makes the cookie secure :
+                      // That is if someone tries to get cookies from the browser using
+                      // document.cookies() , It wont show the cookies
       })
       res.status(200).json({message:"Logged in"})
     }
   })
 })
 
-app.get('/profile',(req,res)=>{
+app.get('/profile',validateToken,(req,res)=>{
   res.json("profile")
 })
 
